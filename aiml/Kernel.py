@@ -278,24 +278,29 @@ class Kernel:
         will be loaded and learned.
 
         """
-        for f in glob.glob(filename):
-            if self._verboseMode: print "Loading %s..." % f,
-            start = time.clock()
-            # Load and parse the AIML file.
-            parser = AimlParser.create_parser()
-            handler = parser.getContentHandler()
-            handler.setEncoding(self._textEncoding)
-            try: parser.parse(f)
-            except xml.sax.SAXParseException, msg:
-                err = "\nFATAL PARSE ERROR in file %s:\n%s\n" % (f,msg)
-                sys.stderr.write(err)
-                continue
-            # store the pattern/template pairs in the PatternMgr.
-            for key,tem in handler.categories.items():
-                self._brain.add(key,tem)
-            # Parsing was successful.
-            if self._verboseMode:
-                print "done (%.2f seconds)" % (time.clock() - start)
+        file_list=glob.glob(filename)
+        print file_list
+        if len(file_list)==0:
+			raise FileNotFoundError
+			
+        for f in file_list:
+			if self._verboseMode: print "Loading %s..." % f,
+			start = time.clock()
+			# Load and parse the AIML file.
+			parser = AimlParser.create_parser()
+			handler = parser.getContentHandler()
+			handler.setEncoding(self._textEncoding)
+			try: parser.parse(f)
+			except xml.sax.SAXParseException, msg:
+				err = "\nFATAL PARSE ERROR in file %s:\n%s\n" % (f,msg)
+				sys.stderr.write(err)
+				continue
+			# store the pattern/template pairs in the PatternMgr.
+			for key,tem in handler.categories.items():
+				self._brain.add(key,tem)
+			# Parsing was successful.
+			if self._verboseMode:
+				print "done (%.2f seconds)" % (time.clock() - start)
 
     def respond(self, input, sessionID = _globalSessionID):
         """Return the Kernel's response to the input string."""
